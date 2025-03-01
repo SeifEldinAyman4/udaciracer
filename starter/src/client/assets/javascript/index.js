@@ -1,7 +1,7 @@
 // PROVIDED CODE BELOW (LINES 1 - 80) DO NOT REMOVE
 
 // The store will hold all information needed globally
-let store = {
+const store = {
     track_id: undefined,
     track_name: undefined,
     player_id: undefined,
@@ -86,31 +86,36 @@ async function delay(ms) {
 
 // This async function controls the flow of the race, add the logic and error handling
 async function handleCreateRace() {
-    console.log("in create race")
+	try {
+		console.log("in create race")
 
-    // render starting UI
-    renderAt('#race', renderRaceStartView(store.track_name))
+		// render starting UI
+		renderAt('#race', renderRaceStartView(store.track_name))
 
-    // Get player_id and track_id from the store
-    const { player_id, track_id } = store;
+		// Get player_id and track_id from the store
+		const { player_id, track_id } = store;
 
-    // Call the asynchronous method createRace, passing the correct parameters
-    const race = await createRace(player_id, track_id);
+		// Call the asynchronous method createRace, passing the correct parameters
+		const race = await createRace(player_id, track_id);
 
-    // Log the race object to verify its structure
-    console.log("RACE: ", race)
+		// Log the race object to verify its structure
+		console.log("RACE: ", race)
 
-    // Update the store with the race id in the response
-    store.race_id = race.ID || race.id;
+		// Update the store with the race id in the response
+		store.race_id = race.ID || race.id;
 
-    // The race has been created, now start the countdown
-    await runCountdown();
+		// The race has been created, now start the countdown
+		await runCountdown();
 
-    // Start the race
-    await startRace(store.race_id);
+		// Start the race
+		await startRace(store.race_id);
 
-    // Run the race
-    await runRace(store.race_id);
+		// Run the race
+		await runRace(store.race_id);
+
+	} catch(error) {
+	 	console.log("Error in handleCreateRace:", error);
+	}
 }
 
 function runRace(raceID) {
@@ -153,7 +158,7 @@ async function runCountdown() {
                 }
             }, 1000);
             // run this DOM manipulation inside the set interval to decrement the countdown for the user
-            document.getElementById('big-numbers').innerHTML = --timer
+            // document.getElementById('big-numbers').innerHTML = --timer
 
             // TODO - when the setInterval timer hits 0, clear the interval, resolve the promise, and return
 
@@ -271,7 +276,7 @@ function renderRaceStartView(track) {
 }
 
 function resultsView(positions) {
-    let userPlayer = positions.find(e => e.id === parseInt(store.player_id));
+    const userPlayer = positions.find(e => e.id === parseInt(store.player_id));
     userPlayer.driver_name += " (you)";
     let count = 1;
 
@@ -299,7 +304,7 @@ function resultsView(positions) {
 }
 
 function raceProgress(positions) {
-    let userPlayer = positions.find(e => e.id === parseInt(store.player_id))
+    const userPlayer = positions.find(e => e.id === parseInt(store.player_id));
     userPlayer.driver_name += " (you)"
 
     positions = positions.sort((a, b) => (a.segment > b.segment) ? -1 : 1)
@@ -358,7 +363,7 @@ function getTracks() {
         ...defaultFetchOpts(),
     })
     .then(res => res.json())
-    .catch(err => console.log("Problem with getTracks request::", err))
+    .catch(err => console.log("Problem with getTracks request:", err))
 }
 
 function getRacers() {
@@ -371,7 +376,7 @@ function getRacers() {
         ...defaultFetchOpts(),
     })
     .then(res => res.json())
-    .catch(err => console.log("Problem with getRacers request::", err))
+    .catch(err => console.log("Problem with getRacers request:", err))
 }
 
 function createRace(player_id, track_id) {
@@ -406,7 +411,7 @@ function startRace(id) {
     })
     .then(res => res.text()) // First, read it as text to check content
     .then(text => text ? JSON.parse(text) : {}) // Parse JSON if not empty
-    .catch(err => console.log("Problem with startRace request::", err));
+    .catch(err => console.log("Problem with startRace request:", err));
 }
 
 
